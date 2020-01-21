@@ -645,7 +645,7 @@ static void qspAppendToCompiled(int opCode, int *itemsCount, QSPVariant *compVal
 
 static int qspCompileExpression(QSP_CHAR *s, QSPVariant *compValues, int *compOpCodes, int *compArgsCounts)
 {
-	QSPVariant v;
+	QSPVariant v = { .Val.Num = 0, .IsStr = QSP_FALSE };
 	QSP_CHAR *name;
 	QSP_BOOL waitForOperator = QSP_FALSE;
 	int oldRefreshCount, opStack[QSP_STACKSIZE], argStack[QSP_STACKSIZE], opCode, itemsCount = 0, opSp = -1, argSp = -1;
