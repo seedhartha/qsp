@@ -19,7 +19,6 @@
 #include "actions.h"
 #include "errors.h"
 #include "game.h"
-#include "locations.h"
 #include "menu.h"
 #include "objects.h"
 #include "playlist.h"
