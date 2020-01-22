@@ -47,7 +47,7 @@ BEGIN_EVENT_TABLE(QSPFrame, wxFrame)
 	EVT_MENU(ID_VOLUME60, QSPFrame::OnVolume)
 	EVT_MENU(ID_VOLUME80, QSPFrame::OnVolume)
 	EVT_MENU(ID_VOLUME100, QSPFrame::OnVolume)
-	EVT_MENU(ID_ABOUT, QSPFrame::OnAbout)
+	EVT_MENU(wxID_ABOUT, QSPFrame::OnAbout)
 	EVT_HTML_LINK_CLICKED(ID_MAINDESC, QSPFrame::OnLinkClicked)
 	EVT_HTML_LINK_CLICKED(ID_VARSDESC, QSPFrame::OnLinkClicked)
 	EVT_LISTBOX(ID_OBJECTS, QSPFrame::OnObjectChange)
@@ -135,7 +135,7 @@ QSPFrame::QSPFrame(const wxString &configPath, QSPTranslationHelper *transhelper
 	m_settingsMenu->Append(ID_SELECTLANG, wxT("-"));
 	// ------------
 	wxMenu *helpMenu = new wxMenu;
-	wxMenuItem *helpAboutItem = new wxMenuItem(helpMenu, ID_ABOUT, wxT("-"));
+	wxMenuItem *helpAboutItem = new wxMenuItem(helpMenu, wxID_ABOUT, wxT("-"));
 	helpAboutItem->SetBitmap(wxBitmap(about_xpm));
 	helpMenu->Append(helpAboutItem);
 	// ------------
@@ -318,19 +318,19 @@ void QSPFrame::ApplyParams()
 	int setFontSize;
 	bool isRefresh = false;
 	// --------------
-	setBackColor = ((QSPGetVarValues(QSP_FMT("BCOLOR"), 0, &numVal, &strVal) && numVal) ? numVal : m_backColor);
+	setBackColor = ((QSPGetVarValues(QSP_FMT("BCOLOR"), 0, &numVal, &strVal) && numVal) ? wxColour(numVal) : m_backColor);
 	if (setBackColor != m_desc->GetBackgroundColour())
 	{
 		if (ApplyBackColor(setBackColor)) isRefresh = true;
 	}
 	// --------------
-	setFontColor = ((QSPGetVarValues(QSP_FMT("FCOLOR"), 0, &numVal, &strVal) && numVal) ? numVal : m_fontColor);
+	setFontColor = ((QSPGetVarValues(QSP_FMT("FCOLOR"), 0, &numVal, &strVal) && numVal) ? wxColour(numVal) : m_fontColor);
 	if (setFontColor != m_desc->GetForegroundColour())
 	{
 		if (ApplyFontColor(setFontColor)) isRefresh = true;
 	}
 	// --------------
-	setLinkColor = ((QSPGetVarValues(QSP_FMT("LCOLOR"), 0, &numVal, &strVal) && numVal) ? numVal : m_linkColor);
+	setLinkColor = ((QSPGetVarValues(QSP_FMT("LCOLOR"), 0, &numVal, &strVal) && numVal) ? wxColour(numVal) : m_linkColor);
 	if (setLinkColor != m_desc->GetLinkColor())
 	{
 		if (ApplyLinkColor(setLinkColor)) isRefresh = true;
@@ -398,21 +398,21 @@ void QSPFrame::ShowError()
 	int code, actIndex, line;
 	if (m_isQuit) return;
 	QSPGetLastErrorData(&code, &loc, &actIndex, &line);
-	const QSP_CHAR *desc = QSPGetErrorDesc(code);
+	wxString desc(QSPGetErrorDesc(code));
 	if (loc)
 		wxMessage = wxString::Format(
 			_("Location: %s\nArea: %s\nLine: %ld\nCode: %ld\nDesc: %s"),
-			loc,
-			(actIndex < 0 ? _("on visit") : _("on action")),
-			line,
-			code,
-			wxGetTranslation(desc)
+			wxString(loc).wx_str(),
+			(actIndex < 0 ? _("on visit").wx_str() : _("on action").wx_str()),
+			(size_t)line,
+			(size_t)code,
+			wxGetTranslation(desc).wx_str()
 		);
 	else
 		wxMessage = wxString::Format(
 			_("Code: %ld\nDesc: %s"),
-			code,
-			wxGetTranslation(desc)
+			(size_t)code,
+			wxGetTranslation(desc).wx_str()
 		);
 	wxMessageDialog dialog(this, wxMessage, _("Error"), wxOK | wxICON_ERROR);
 	oldIsProcessEvents = m_isProcessEvents;
@@ -471,7 +471,7 @@ void QSPFrame::ReCreateGUI()
 	menuBar->SetLabel(ID_VOLUME100, _("Initial volume\tAlt-6"));
 	menuBar->SetLabel(ID_TOGGLEWINMODE, _("Window / Fullscreen &mode\tAlt-Enter"));
 	menuBar->SetLabel(ID_SELECTLANG, _("Select &language...\tAlt-L"));
-	menuBar->SetLabel(ID_ABOUT, _("&About...\tCtrl-H"));
+	menuBar->SetLabel(wxID_ABOUT, _("&About...\tCtrl-H"));
 	// --------------------------------------
 	m_manager->GetPane(wxT("imgview")).Caption(_("Preview"));
 	m_manager->GetPane(wxT("objs")).Caption(_("Objects"));
@@ -842,11 +842,14 @@ void QSPFrame::OnAbout(wxCommandEvent& event)
 	info.SetIcon(wxIcon(logo_big_xpm));
 	info.SetName(QSP_LOGO);
 	info.SetCopyright(wxT("Byte Soft, 2001-2010"));
+	wxString version(QSPGetVersion());
+	wxString libCompiledDate(QSPGetCompiledDateTime());
+	wxString guiCompiledDate(wxT(__DATE__) wxT(", ") wxT(__TIME__));
 	info.SetDescription(wxString::Format(
 		_("Version: %s\nEngine Compiled: %s\nGUI Compiled: %s"),
-		QSPGetVersion(),
-		QSPGetCompiledDateTime(),
-		wxT(__DATE__) wxT(", ") wxT(__TIME__)
+		version.wx_str(),
+		libCompiledDate.wx_str(),
+		guiCompiledDate.wx_str()
 	));
 	info.SetWebSite(wxT("http://qsp.su"));
 	// ----

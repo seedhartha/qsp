@@ -43,7 +43,7 @@ QSPListBox::QSPListBox(wxWindow *parent, wxWindowID id, ListBoxType type) : wxHt
 	wxString commonPart(wxString::Format(
 		wxT("<META HTTP-EQUIV = \"Content-Type\" CONTENT = \"text/html; charset=%s\">")
 		wxT("<FONT COLOR = #%%%%s><TABLE CELLSPACING = 4 CELLPADDING = 0><TR>%%s</TR></TABLE></FONT>"),
-		wxFontMapper::GetEncodingName(m_font.GetEncoding()).wx_str()
+		wxFontMapper::GetEncodingName(wxLocale::GetSystemEncoding()).wx_str()
 	));
 	m_outFormat = wxString::Format(commonPart, wxT("<TD WIDTH = 100%%>%s</TD>"));
 	m_outFormatNums = wxString::Format(commonPart, wxT("<TD>[%ld]</TD><TD WIDTH = 100%%>%s</TD>"));
@@ -147,7 +147,7 @@ void QSPListBox::CreateHTMLParser() const
 		m_htmlParser->SetDC(new wxClientDC(self));
 		m_htmlParser->SetFS(&self->m_filesystem);
 		#if !wxUSE_UNICODE
-			if (GetFont().Ok()) m_htmlParser->SetInputEncoding(GetFont().GetEncoding());
+			m_htmlParser->SetInputEncoding(wxLocale::GetSystemEncoding());
 		#endif
 		m_htmlParser->SetStandardFonts();
 	}
@@ -180,7 +180,7 @@ void QSPListBox::OnMouseMove(wxMouseEvent& event)
 	event.Skip();
 	if (m_type == LB_EXTENDED)
 	{
-		item = HitTest(event.GetPosition());
+		item = VirtualHitTest(event.GetPosition().y);
 		if (item != wxNOT_FOUND) DoHandleItemClick(item, 0);
 	}
 }

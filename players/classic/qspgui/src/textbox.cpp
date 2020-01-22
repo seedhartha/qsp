@@ -41,26 +41,28 @@ QSPTextBox::QSPTextBox(wxWindow *parent, wxWindowID id) : wxHtmlWindow(parent, i
 	m_outFormat = wxString::Format(
 		wxT("<HTML><META HTTP-EQUIV = \"Content-Type\" CONTENT = \"text/html; charset=%s\">")
 		wxT("<BODY><FONT COLOR = #%%s>%%s</FONT></BODY></HTML>"),
-		wxFontMapper::GetEncodingName(m_font.GetEncoding()).wx_str()
+		wxFontMapper::GetEncodingName(wxLocale::GetSystemEncoding()).wx_str()
 	);
 	wxString fontName(m_font.GetFaceName());
 	SetStandardFonts(m_font.GetPointSize(), fontName, fontName);
 }
 
-void QSPTextBox::SetIsHtml(bool isHtml, bool isScroll)
+void QSPTextBox::SetIsHtml(bool isHtml)
 {
 	if (m_isUseHtml != isHtml)
 	{
 		m_isUseHtml = isHtml;
-		RefreshUI(isScroll);
+		RefreshUI();
 	}
 }
 
 void QSPTextBox::RefreshUI(bool isScroll)
 {
+	wxString color(QSPTools::GetHexColor(GetForegroundColour()));
+	wxString text(QSPTools::HtmlizeWhitespaces(m_isUseHtml ? m_text : QSPTools::ProceedAsPlain(m_text)));
 	wxON_BLOCK_EXIT_THIS0(QSPTextBox::Thaw);
 	Freeze();
-	SetPage(wxString::Format(m_outFormat, QSPTools::GetHexColor(GetForegroundColour()).wx_str(), QSPTools::HtmlizeWhitespaces(m_isUseHtml ? m_text : QSPTools::ProceedAsPlain(m_text)).wx_str()));
+	SetPage(wxString::Format(m_outFormat, color.wx_str(), text.wx_str()));
 	if (isScroll) Scroll(0, 0x7FFFFFFF);
 }
 
@@ -89,6 +91,11 @@ void QSPTextBox::SetText(const wxString& text, bool isScroll)
 {
 	if (m_text != text)
 	{
+		if (isScroll)
+		{
+			if (m_text.IsEmpty() || !text.StartsWith(m_text))
+				isScroll = false;
+		}
 		m_text = text;
 		RefreshUI(isScroll);
 	}
