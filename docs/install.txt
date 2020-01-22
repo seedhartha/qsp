@@ -1,0 +1,37 @@
+Инструкция по сборке Quest Soft Player
+======================================
+
+Для автоматизации сборки на разных платформах используется система CMake. В настоящее время
+поддерживается сборка под Windows с использованием Visual Studio 2012 и выше, а также сборка под
+Linux.
+
+Сборка с использованием Visual Studio 2019
+------------------------------------------
+
+Ниже вместо QSP_PATH используйте ваш путь до папки с QSP.
+
+cd QSP_PATH
+git submodule update --init --recursive
+
+cd QSP_PATH\players\classic\build_wx\wxWidgets
+git apply ../wxPatch.diff
+
+Откройте и соберите решение QSP_PATH\players\classic\build_wx\wxWidgets\build\msw\wx_vc16.sln в
+Visual Studio.
+
+cd QSP_PATH
+mkdir build
+cd build
+cmake .. -G "Visual Studio 16 2019" -A Win32 -DBUILD_QSPGUI=ON -DBUILD_TXT2GAM=ON
+
+Откройте QSP_PATH\build\CMakeCache.txt в текстовом редакторе и укажите следующие значения
+переменных:
+
+wxWidgets_ROOT_DIR: QSP_PATH/players/classic/build_wx/wxWidgets
+wxWidgets_LIB_DIR: QSP_PATH/players/classic/build_wx/wxWidgets/lib/vc_lib
+
+cmake ..
+
+Откройте и соберите решение QSP_PATH\build\qsp.sln в Visual Studio. Перед запуском плеера скопируйте
+файлы из QSP_PATH\players\classic\misc\common и QSP_PATH\players\classic\misc\win32 в папку с
+собранным плеером.
